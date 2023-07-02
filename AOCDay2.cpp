@@ -1,89 +1,117 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
+// AOCDay2.cpp : This file contains the 'main' function. Program execution begins and ends there.
+//
 
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
-#include <fstream>
 #include <iostream>
-#include <string>
-#include <algorithm>
-#include <vector>
+#include <fstream>
 #include <map>
+#include <vector>
+#include <algorithm>
+#include <sstream>
 
 
-char itoc(int i) {
-    return static_cast<int>(i + '0');
+// Strategy guide 
+// R P S
+// A B C Elf  
+// X Y Z Player
+// is the sum of your scores for each round. 
+// 1 Point for X 2 Point for Y 3 point for Scissors
+// Outcome of the Round 0 if you lost, 3, if the round was a draw, 6 if you won.
+
+// AX = 1 + 3 AY = 2+ 6 AZ = 3 + 0
+// BX = 1 + 0 BY = 2 + 3 BZ = 3 + 6
+// CX = 1 + 6 CY = 2 + 0 CZ = 3 + 3;
+
+// X means you need to lose, Y means draw, Z means win
+// AX = 3 + 0 AY = 1 + 3 AZ = 2 + 6
+// BX = 1 + 0 BY = 2 + 3 BZ = 3 + 6
+// CX = 2 + 0 CY = 3 + 3 CZ  = 1 + 6
+
+
+
+
+
+
+void Day2SolutionPart1() {
+    std::map<std::string, int> outcome = { { "AX", 4 }, {"AY", 8}, {"AZ", 3},
+        {"BX", 1}, {"BY", 5}, {"BZ", 9}, {"CX", 7}, {"CY", 2}, {"CZ", 6}
+    };
+    std::ifstream AocInput;
+    AocInput.open("C:\\Users\\j_cha\\Downloads\\AOCDay2.txt");
+    if (AocInput.fail()) {
+        std::cout << "Failed to open file";
+        std::exit(-1);
+    }
+    std::vector<std::pair<char, char>> strategy;
+    char a;
+    char b;
+    std::string line;
+    while (AocInput.peek() != EOF) {
+        AocInput >> a >> b;
+        std::cout << a << b <<"\n";
+        strategy.emplace_back(a, b);
+    }
+
+    strategy.pop_back();
+    int sum = 0;
+
+    for (int i = 0; i != strategy.size(); i++) {
+        std::string key = "";
+        key += strategy[i].first;
+        key += strategy[i].second;
+        sum += outcome[key];
+    }
+
+    std::cout << sum;
+    AocInput.close();
+
+}
+// X means you need to lose, Y means draw, Z means win
+// AX = 3 + 0 AY = 1 + 3 AZ = 2 + 6
+// BX = 1 + 0 BY = 2 + 3 BZ = 3 + 6
+// CX = 2 + 0 CY = 3 + 3 CZ  = 1 + 6
+
+void Day2SolutionPart2() {
+    std::map<std::string, int> outcome{
+        {"AX", 3}, {"AY", 4 } , {"AZ",8 },
+        {"BX", 1}, {"BY", 5} , {"BZ", 9},
+        {"CX", 2}, {"CY", 6}, {"CZ", 7}
+    };
+    std::ifstream AocInput;
+    AocInput.open("C:\\Users\\j_cha\\Downloads\\AOCDay2.txt");
+    if (AocInput.fail()) {
+        std::cout << "Failed to open file";
+        std::exit(-1);
+    }
+    std::vector<std::pair<char, char>> strategy;
+    char a;
+    char b;
+    std::string line;
+    while (AocInput.peek() != EOF) {
+        AocInput >> a >> b;
+        std::cout << a << b << "\n";
+        strategy.emplace_back(a, b);
+    }
+
+    strategy.pop_back();
+    int sum = 0;
+
+    for (int i = 0; i != strategy.size(); i++) {
+        std::string key = "";
+        key += strategy[i].first;
+        key += strategy[i].second;
+        sum += outcome[key];
+    }
+
+    std::cout << sum;
+    AocInput.close();
+
 }
 
-int ctoi(char c) {
-    return static_cast<char>(c - '0');
-}
 
 int main()
 {
-    std::ifstream strategy("C:\\Users\\j_cha\\Downloads\\AOC2.txt");
-    if (strategy.fail())
-    {
-        std::cout << "Failed to open file.\n";
-        exit(1);
-    }
-
-    // R P S
-    // A B C 
-    // X Y Z
-    // 1 2 3
-    // shape + outcome
-    // AX BY CZ 3
-    // BX CY AZ 0
-    // BZ AY CX 6
-
-    // AX BX CX = AZ(rs) BX(pr) CY(sp) 0
-    // AY BY CY = AX(rr) BY(pp) CZ (ss)3 
-    // AZ BZ CZ = AY(rp) BZ(ps) CX (sr)6
-    // So you have to be able to modulate the values we can calculate one score
-    // easily, however we need to be able to 
-
-
-
-    int score = 0;
-    char a, b, c;
-    std::string line;
-    while (std::getline(strategy, line)) {
-        a = char(line[0]);
-        c = char(line[2]);
-        std::string outcome = std::string(1, a) + std::string(1, c);
-        std::cout << outcome << '\n';
-        /*if (outcome == "AX" || outcome == "BY" || outcome == "CZ")
-            score += 3;
-        else if (outcome == "AY" || outcome == "BZ" || outcome == "CX")
-            score += 6;
-        else if (outcome == "BX" || outcome == "CY" || outcome == "AZ")
-            score += 0;
-        if (c == 'X')
-            score += 1;
-        else if (c == 'Y')
-            score += 2;
-        else if (c == 'Z')
-            score += 3;*/
-        if (outcome == "AX")
-            score += 3;
-        else if (outcome == "CX")
-            score += 2;
-        else if (outcome == "BX")
-            score += 1;
-        else if (outcome == "AY")
-            score += 4;
-        else if (outcome == "BY")
-            score += 5;
-        else if (outcome == "CY")
-            score += 6;
-        else if (outcome == "AZ")
-            score += 8;
-        else if (outcome == "BZ")
-            score += 9;
-        else if (outcome == "CZ")
-            score += 7;
-    }
-    
-    std::cout << score;
+    Day2SolutionPart1();
+    Day2SolutionPart2();
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

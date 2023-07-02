@@ -3,49 +3,87 @@
 
 #include <iostream>
 #include <fstream>
-#include <string>
+#include <sstream>
 #include <vector>
 #include <algorithm>
 
 
+void Day1_Solution_Part1() {
+	std::ifstream aocInput;
+	aocInput.open("C:\\Users\\j_cha\\Downloads\\AOCDay1.txt");
+	if (aocInput.fail())
+	{
+		std::cout << "Could not open file.\n";
+		exit(-1);
+	}
+	std::string line;
+
+	std::vector<int> summation;
+	std::vector<int> elf;
+	std::vector<int> grouped_elves;
+	int sum = 0;
+	while (std::getline(aocInput, line)) {
+		if (line.empty()) {
+			int sum = 0;
+			for (auto i = elf.begin(); i < elf.end(); i++)
+				sum += *i;
+
+			summation.emplace_back(sum);
+			elf.clear();
+		}
+		if (!line.empty()) {
+			elf.push_back(std::stoi(line));
+		}
+	}
+	std::sort(summation.begin(), summation.end());
+
+	for (auto i = summation.begin(); i != summation.end(); i++)
+		std::cout << *i << '\n';
+}
+
+void Day1_Solution_Part2() {
+	std::ifstream aocInput;
+	aocInput.open("C:\\Users\\j_cha\\Downloads\\AOCDay1.txt");
+	if (aocInput.fail())
+	{
+		std::cout << "Could not open file.\n";
+		exit(-1);
+	}
+	std::string line;
+
+	std::vector<int> summation;
+	std::vector<int> elf;
+	std::vector<int> grouped_elves;
+	int sum = 0;
+	while (std::getline(aocInput, line)) {
+		if (line.empty()) {
+			int sum = 0;
+			for (auto i = elf.begin(); i < elf.end(); i++)
+				sum += *i;
+
+			summation.emplace_back(sum);
+			elf.clear();
+		}
+		if (!line.empty()) {
+			elf.push_back(std::stoi(line));
+		}
+	}
+	std::sort(summation.begin(), summation.end());
+
+	//for (auto i = summation.begin(); i != summation.end(); i++)
+	//	std::cout << *i << '\n';
+	sum = 0;
+	for (auto i = summation.end() -1; i != summation.end() - 4; i--)
+		sum += *i;
+	std::cout << sum;
+}
+
+
 int main()
-{   
-
-    std::ifstream ifa;
-    ifa.open("C:\\Users\\j_cha\\Downloads\\data.text");
-    if (!ifa.is_open())
-        std::cout << "Failed to open the file." << std::endl;
-    std::string line;
-    std::vector<std::vector<int>> groups;
-    std::vector<int> currentGroup;
-    while(std::getline(ifa, line)) {
-        if (line.empty()) {
-            if (!currentGroup.empty()) {
-                groups.push_back(currentGroup);
-                currentGroup.clear();
-            }
-        }
-        else {
-            int number = std::stoi(line);
-            currentGroup.push_back(number);
-        }
-    }
-
-    ifa.close();
-    std::vector<int> collapsedGroups;
-    for (const auto& group : groups) {
-        int sum = 0;
-        for (int number : group) {
-            sum += number;
-        }
-        collapsedGroups.push_back(sum);
-    }
-    
-    std::sort(collapsedGroups.begin(), collapsedGroups.end());
-    std::cout << collapsedGroups.back();
-
-    return 0;
-    
+{
+	Day1_Solution_Part1();
+	Day1_Solution_Part2();
+	
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
