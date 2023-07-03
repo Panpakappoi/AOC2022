@@ -35,21 +35,6 @@
 // 
 
 std::map<size_t, std::string> markercandidates;
-//size_t start_of(const std::string& s, size_t offset = 4)
-//{
-//	std::unordered_map<char, size_t> cnt;
-//	size_t i = 0;
-//	for (; i < s.length(); i++) {
-//		++cnt[s[i]];
-//		if (i >= offset) {
-//			--cnt[s[i - offset]];
-//			if (cnt[s[i - offset]] == 0)
-//				cnt.erase(s[i - offset]);
-//		}
-//		if (cnt.size() == offset) break;
-//	}
-//	return i + 1;
-//}
 
 bool hasUniqueCharacters(const std::string_view& str) {
 	std::unordered_set<char> charSet;
