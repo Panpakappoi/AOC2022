@@ -27,71 +27,106 @@
 #include <string>
 #include <array>
 #include <set>
+#include <utility>
 
+using tree_row = std::vector<int>;
+using tree_grid = std::vector<tree_row>;
 
-
-
-const size_t SIZE_OF_ARRAY{ 5 };
-const size_t SIZE_OF_SEARCH{ 4 };
-
-std::vector<std::vector<size_t>> processInput() {
-    std::vector<std::vector<size_t>> grid;
-
-    std::ifstream aocInput;
-    aocInput.open("input.txt.txt");
-    if (aocInput.fail())
-    {
-        std::cout << "Could not open file";
-        std::exit(-1);
-    }
-    std::string line;
-    for (size_t i = 0; i < SIZE_OF_ARRAY; i++) {
-        std::getline(aocInput, line);
-        for (auto i : line)
-        {
-            if (i < '0' || i > '9')
-                throw std::runtime_error("Parsing went horribly wrong");
-            grid.emplace_back(i);
-        }
-    }
-    return grid;
+std::vector<std::vector<int>> process_test_input() {
+	std::ifstream aocInput("input.txt.txt");
+	if (aocInput.fail())
+	{
+		std::cout << "Failed to open file\n";
+		std::exit(-1);
+	}
+	tree_grid grid;
+	std::string line;
+	std::vector<int> testInput;
+	while(std::getline(aocInput, line)){
+		tree_row current;
+		for (auto c : line)
+		{
+			current.emplace_back(c - '0');
+		}
+		grid.emplace_back(current);
+	}
+	return grid;
 }
 
-
-void calculate_visibility(std::vector<std::vector<size_t>>& grid)
+void tree_visibility(std::vector<std::vector<int>>& grid)
 {
-    size_t visible = 2 * SIZE_OF_ARRAY + 2 * (SIZE_OF_ARRAY - 2);
+	auto x_max = grid.size();
+	auto y_max = grid[0].size();
+	auto visibility = 2 * x_max + 2 * (y_max - 2);
 
+	static constexpr auto update_max = 
+		[](size_t& max, int& current){if (current > max) max = current; };
+	for (size_t x = 1; x < x_max - 1; x++) 
+	{ // start from 1 because we iterate over inner trees
+		for (size_t y = 1; y < y_max - 1; y++)
+		{ // same deal here
+			size_t m_left = grid[0][y]; // initialize to 0 and whatever y
+			for (auto i = 1; i < x; ++i)
+				update_max(m_left, grid[i][y]);
+			if (m_left < grid[x][y]) { 
+				++visibility;
+				continue;
+			}
 
-    static constexpr auto new_max =
-        [](size_t& max, size_t& current) { if (current > max)max = current; };
+			size_t m_right = grid[x+1][y];
+			for (auto j = x+1; j < x_max; ++j)
+				update_max(m_right, grid[j][y]);
+			if (m_right < grid[x][y]) {
+				++visibility;
+				continue;
+			}
 
-
-    for (size_t i = 1; i < SIZE_OF_ARRAY - 1; i++) {
-        for (size_t j = 1; j < SIZE_OF_ARRAY - 1; j++) {
-            size_t top_Row = grid[0][j];
-            for (auto x = 0; x < i; x++)
-                new_max(top_Row, grid[x][j]);
-            if (top_Row < grid[i][j])
-            {
-                ++visible;
-            }
-        }
-    }
+			size_t m_above = grid[x][0];
+			for (auto z = 1; z < y; ++z)
+				update_max(m_above, grid[x][z]);
+			if (m_above < grid[x][y]) {
+				++visibility;
+				continue;
+			}
+			size_t m_below = grid[x][y+1];
+			for (auto k = y+1; k < y_max; ++k)
+				update_max(m_below, grid[x][k]);
+			if (m_below < grid[x][y]) {
+				++visibility;
+				continue;
+			}
+		}
+	}
+	std::cout << visibility << '\n';
 }
-int main()
-{
-    auto grid = processInput();
-    calculate_visibility(grid);
+
+std::vector<std::vector<int>> process_Input() {
+	std::ifstream aocInput("AOCDay8.txt");
+	if (aocInput.fail())
+	{
+		std::cout << "Failed to open file.\n";
+		std::exit(-1);
+	}
+	tree_grid grid;
+	std::string line;
+	while (std::getline(aocInput, line))
+	{
+		tree_row current;
+		for (auto c : line)
+		{
+			current.emplace_back(c - '0');
+		}
+		grid.emplace_back(current);
+	}
+	return grid;
 }
 
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
 
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
+
+int main() {
+	auto test = process_test_input();
+	tree_visibility(test);
+	auto aocInput = process_Input();
+	tree_visibility(aocInput);
+
+}
