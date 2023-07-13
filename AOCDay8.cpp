@@ -42,7 +42,7 @@ std::vector<std::vector<int>> process_test_input() {
 	tree_grid grid;
 	std::string line;
 	std::vector<int> testInput;
-	while(std::getline(aocInput, line)){
+	while (std::getline(aocInput, line)) {
 		tree_row current;
 		for (auto c : line)
 		{
@@ -59,39 +59,39 @@ void tree_visibility(std::vector<std::vector<int>>& grid)
 	auto y_max = grid[0].size();
 	auto visibility = 2 * x_max + 2 * (y_max - 2);
 	std::set<std::pair<int, int>> unique_visibility;
-	static constexpr auto update_max = 
-		[](size_t& max, int& current){if (current > max) max = current; };
-	for (size_t x = 1; x < x_max - 1; x++) 
+	static constexpr auto update_max =
+		[](size_t& max, int& current) {if (current > max) max = current; };
+	for (size_t x = 1; x < x_max - 1; x++)
 	{ // start from 1 because we iterate over inner trees
 		for (size_t y = 1; y < y_max - 1; y++)
 		{ // same deal here
-			size_t m_left = grid[0][y]; // initialize to 0 and whatever y
+			size_t m_x = grid[0][y]; // initialize to 0 and whatever y
 			for (auto i = 1; i < x; ++i)
-				update_max(m_left, grid[i][y]);
-			if (m_left < grid[x][y]) { 
+				update_max(m_x, grid[i][y]);
+			if (m_x < grid[x][y]) {
 				unique_visibility.insert(std::pair(x, y));
 				continue;
 			}
 
-			size_t m_right = grid[x+1][y];
-			for (auto j = x+1; j < x_max; ++j)
-				update_max(m_right, grid[j][y]);
-			if (m_right < grid[x][y]) {
+			size_t m_x1 = grid[x + 1][y];
+			for (auto j = x + 1; j < x_max; ++j)
+				update_max(m_x1, grid[j][y]);
+			if (m_x1 < grid[x][y]) {
 				unique_visibility.insert(std::pair(x, y));
 				continue;
 			}
 
-			size_t m_above = grid[x][0];
+			size_t m_y = grid[x][0];
 			for (auto z = 1; z < y; ++z)
-				update_max(m_above, grid[x][z]);
-			if (m_above < grid[x][y]) {
+				update_max(m_y, grid[x][z]);
+			if (m_y < grid[x][y]) {
 				unique_visibility.insert(std::pair(x, y));
 				continue;
 			}
-			size_t m_below = grid[x][y+1];
-			for (auto k = y+1; k < y_max; ++k)
-				update_max(m_below, grid[x][k]);
-			if (m_below < grid[x][y]) {
+			size_t m_y1 = grid[x][y + 1];
+			for (auto k = y + 1; k < y_max; ++k)
+				update_max(m_y1, grid[x][k]);
+			if (m_y1 < grid[x][y]) {
 				unique_visibility.insert(std::pair(x, y));
 				continue;
 			}
@@ -109,40 +109,39 @@ void calculate_Tree_Visibility(std::vector<std::vector<int>>& grid) {
 	for (size_t x = 1; x < x_max - 1; ++x) {
 		for (size_t y = 1; y < y_max - 1; ++y)
 		{
-			size_t x_left = x - 1, x_right = x + 1, y_up = y - 1, y_down = y + 1, metric = 1;
-			while(true) { 
-				//running down the 
-				if (grid[x_left][y] >= grid[x][y])
+			size_t x_1 = x - 1, x_2 = x + 1, y_1 = y - 1, y_2 = y + 1, metric = 1;
+			while (true) {
+				if (grid[x_1][y] >= grid[x][y])
 					break;
-				if (x_left == 0) break;
-				--x_left;
+				if (x_1 == 0) break;
+				--x_1;
 			}
-			metric *= (x - x_left);
+			metric *= (x - x_1);
 
-			while(true) {
-				if (grid[x_right][y] >= grid[x][y])
+			while (true) {
+				if (grid[x_2][y] >= grid[x][y])
 					break;
-				if (x_right == x_max - 1) break;
-				++x_right;
+				if (x_2 == x_max - 1) break;
+				++x_2;
 			}
-			metric *= (x_right - x);
+			metric *= (x_2 - x);
 
-			while(true) {
-				if (grid[x][y_up] >= grid[x][y])
+			while (true) {
+				if (grid[x][y_1 >= grid[x][y])
 					break;
-				if (y_up == 0)
+				if (y_1 == 0)
 					break;
-				--y_up;
+				--y_1;
 			}
-			metric *= (y - y_up);
-			while(true) {
-				if (grid[x][y_down] >= grid[x][y])
+			metric *= (y - y_1);
+			while (true) {
+				if (grid[x][y_2] >= grid[x][y])
 					break;
-				if (y_down == y_max - 1)
+				if (y_2 == y_max - 1)
 					break;
-				++y_down;
+				++y_2;
 			}
-			metric *= (y_down - y);
+			metric *= (y_2 - y);
 			update_max(tree_scenic_score, metric);
 		}
 	}
