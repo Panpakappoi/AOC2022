@@ -64,8 +64,21 @@ struct Directory {
 };
 
 
-
-
+void calculateDirectorySize(Directory& directory, size_t &size) {
+	for (const auto& file : directory.files) {
+		directory.size += file.size;
+	}
+	for (auto& subdir : directory.child_Directories) {
+		calculateDirectorySize(subdir, size);
+		directory.size += subdir.size;
+	}
+	if (directory.size <= 100000)
+	{
+		size += directory.size;
+	}
+	std::cout << size << '\n';
+}
+	
 
 auto text{
 R"(
@@ -94,12 +107,12 @@ $ ls
 7214296 k
 )"s};
 
-Directory process_test_Commands(std::vector<std::string> & input) {
-	auto change_directory = std::regex(R"(^$\s[cd]\s(\w+))"s);
-	auto parse_ls = std::regex(R"(^$\sls)"s);
-	auto previous_directory = std::regex(R"(^$\scd\s\.\.)"s);
-	auto file_parse = std::regex(R"(\d+)\s(\w+.*)"s);
-	auto directory_create = std::regex(R"(dir\s(\w+)"s);
+Directory process_Commands(const std::vector<std::string> & input) {
+	auto change_directory = std::regex(R"(^\s*cd\s+(\w+))"s);
+	auto parse_ls = std::regex(R"(^\s*ls)"s);
+	auto previous_directory = std::regex(R"(^\s*cd\s*\.\.)"s);
+	auto file_parse = std::regex(R"(^(\d+)\s+(\w+\.\w+))"s);
+	auto directory_create = std::regex(R"(dir\s+(\w+))"s);
 	auto match = std::smatch{};
 	
 	Directory master;
@@ -119,7 +132,6 @@ Directory process_test_Commands(std::vector<std::string> & input) {
 					currentFile.name = match[2];
 					currentFile.size = std::stoi(match[1]);
 					currentDirectory->files.emplace_back(currentFile);
-					currentDirectory->size += currentFile.size;
 				}
 
 				
@@ -136,7 +148,7 @@ Directory process_test_Commands(std::vector<std::string> & input) {
 		if (std::regex_search(input[i], match, change_directory))
 		{
 			std::string directoryName = match[1];
-			for (auto directory : currentDirectory->child_Directories)
+			for (auto& directory : currentDirectory->child_Directories)
 				if (directory.name == directoryName)
 				{
 					currentDirectory = &directory;
@@ -148,13 +160,8 @@ Directory process_test_Commands(std::vector<std::string> & input) {
 			currentDirectory = currentDirectory->parentPtr;
 		}
 	}
-
+	return master;
 }
-
-
-
-
-
 std::vector<std::string> processInput() {
 	std::ifstream aocInput;
 	aocInput.open("AOCDay7.txt");
@@ -175,7 +182,9 @@ std::vector<std::string> processInput() {
 int main()
 {
 	auto commandList = processInput();
-	for (size_t i = 0; i < commandList.size(); i++)
-		std::cout << commandList[i] << '\n';
+	auto master = process_Commands(commandList);
+	size_t eligible_directory = 0;
+	calculateDirectorySize(master, eligible_directory);
+
 }
 
