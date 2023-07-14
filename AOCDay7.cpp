@@ -63,8 +63,8 @@ struct Directory {
 	size_t size = 0;
 };
 
-
 void calculateDirectorySize(Directory& directory, size_t &size) {
+	size_t t_size = 0;
 	for (const auto& file : directory.files) {
 		std::cout << file.size << ' ' << file.name << '\n';
 		directory.size += file.size;
@@ -77,36 +77,10 @@ void calculateDirectorySize(Directory& directory, size_t &size) {
 	{
 		size += directory.size;
 	}
+	t_size = directory.size;
 	std::cout << size << '\n';
+	std::cout << t_size << '\n';
 }
-	
-
-auto text{
-R"(
-$ cd /
-$ ls
-dir a
-14848514 b.txt
-8504156 c. dat 
-dir d          
-$ cd a         
-$ ls           
-dir e          
-29116 f        
-2557 g         
-62596 h.lst    
-$ cd e          
-$ ls            
-584 i
-$ cd ..
-$ cd ..
-$ cd d
-$ ls
-4060174 j 
-8033020 d.log
-5626152 d.ext
-7214296 k
-)"s};
 
 Directory process_Commands(const std::vector<std::string> & input) {
 	auto change_directory = std::regex(R"(^.\scd\s(\w+))");
@@ -186,12 +160,37 @@ std::vector<std::string> processInput() {
 	return commandList;
 }
 
+void findSmallestDirectoryToDelete(Directory& directory, size_t requiredSpace,
+	std::vector<size_t> &subDirSizeList)
+{
+	size_t directorySize = 0;
+	for (auto& file : directory.files) {
+		directorySize += file.size;
+	}
+
+	for (auto& subdir : directory.child_Directories) {
+		findSmallestDirectoryToDelete(subdir, requiredSpace, subDirSizeList);
+		directorySize += subdir.size;
+	}
+	if (directorySize >= requiredSpace)
+		subDirSizeList.emplace_back(directorySize);
+}
+
 int main()
 {
 	auto commandList = processInput();
 	auto master = process_Commands(commandList);
 	size_t eligible_directory = 0;
 	calculateDirectorySize(master, eligible_directory);
+	size_t difference_capacity = 70000000 - 43629016;
+	size_t required_size = 30000000 - difference_capacity;
+	std::vector<size_t> deletionCandidates;
+	findSmallestDirectoryToDelete(master, required_size, deletionCandidates);
 
+	std::sort(deletionCandidates.begin(), deletionCandidates.end());
+	for (auto i : deletionCandidates)
+	{
+		std::cout << "Deletion Candidates " <<  i << '\n';
+	}
 }
 
