@@ -1,0 +1,162 @@
+#include <iostream>
+#include <fstream>
+#include <regex>
+#include <string>
+#include <vector>
+#include <set>
+#include <unordered_set>
+
+struct rope{
+    int first  = 0;
+    int second = 0;
+};
+
+
+std::vector<std::string> process_Input() {
+    std::ifstream aocInput;
+    aocInput.open("AOCDAY9.txt");
+    if (aocInput.fail()) {
+        std::cout << " Failed to open field: \n";
+        std::exit(-1);
+    }
+    std::string line;
+    std::vector<std::string> directions;
+    while (std::getline(aocInput, line))
+    {
+        directions.emplace_back(line);
+    }
+    return directions;
+}
+
+void handle_truth(bool& b_touching, bool& b_diagStep, rope& head, rope& tail)
+{
+    if (abs(head.first - tail.first) > 1 || abs(head.second - tail.second) > 1)
+    {
+        b_touching = false;
+    }
+
+    if ((abs(head.first - tail.first) > 1 && head.second != head.first) || (abs(head.second - tail.second) == 2 && head.first != head.second))
+    {
+        b_diagStep = true;
+    }
+}
+
+
+
+std::set<std::pair<int, int>> process_directions(std::vector<std::string>& directions)
+{
+    rope head{ 0,0 };
+    rope tail{ 0,0 };
+    bool b_touching = true;
+    
+
+
+
+    bool b_diagStep = false;
+    std::set<std::pair<int, int>> visit;
+    visit.emplace(std::make_pair(tail.first, tail.second));
+    auto dir_pattern = std::regex{ R"((\w)\s(\d+))" };
+    auto match = std::smatch{};
+    for (int i = 0; i < directions.size(); i++)
+    {
+        if (std::regex_search(directions[i], match, dir_pattern))
+        {
+            if (match[1] == 'R')
+            {
+                for (int i = 0; i < std::stoi(match[2]); i++)
+                {
+                    head.second++;
+                    handle_truth(b_touching, b_diagStep, head, tail);
+                    if (!b_touching && b_diagStep)
+                    {
+                        tail.second++;
+                        if (tail.first > head.first)
+                            tail.first--;
+                        else
+                            tail.first++;
+                    }
+                    else if (!b_touching)
+                    {
+                        tail.second++;
+                    }
+                    visit.emplace(std::make_pair(tail.first, tail.second));
+                }
+            }
+
+            else if (match[1] == 'L')
+            {
+                for (int i = 0; i < std::stoi(match[2]); i++)
+                {
+                    head.second--;
+                    handle_truth(b_touching, b_diagStep, head, tail);
+                    if (!b_touching && b_diagStep)
+                    {
+                        tail.second--;
+                        if (tail.first > head.first)
+                            tail.first--;
+                        else
+                            tail.first++;
+                    }
+                    else if (!b_touching)
+                    {
+                        tail.second--;
+                    }
+                    visit.emplace(std::make_pair(tail.first, tail.second));
+                }
+            }
+            else if (match[1] == 'U')
+            {
+                for (int i = 0; i < std::stoi(match[2]); i++)
+                {
+                    head.first--;
+                    handle_truth(b_touching, b_diagStep, head, tail);
+                    if (!b_touching && b_diagStep)
+                    {
+                        tail.first--;
+                        if (tail.second > head.second)
+                            tail.second--;
+                        else
+                            tail.first++;
+                    }
+                    else if (!b_touching)
+                    {
+                        tail.first--;
+                    }
+                    visit.emplace(std::make_pair(tail.first, tail.second));
+                }
+
+            }
+            else if (match[1] == 'D')
+            {
+                for (int i = 0; i < std::stoi(match[2]); i++)
+                {
+                    head.first++;
+                    handle_truth(b_touching, b_diagStep, head, tail);
+                    if (!b_touching && b_diagStep)
+                    {
+                        tail.first++;
+                        if (tail.second > head.second)
+                            tail.second--;
+                        else
+                            tail.second++;
+                    }
+                    else if (!b_touching)
+                    {
+                        tail.first++;
+                    }
+                    visit.emplace(std::make_pair(tail.first, tail.second));
+                }
+            }
+        }
+    }
+    return visit;
+}
+
+
+
+int main()
+{
+    std::vector<std::string> directions = process_Input();
+    std::set<std::pair<int, int>> tail_visited = process_directions(directions);
+    std::cout << tail_visited.size();
+}
