@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <regex>
 
+int const CRT_END_LINE = 40;
 
 void process_input() {
     std::ifstream aocInput;
@@ -15,6 +16,11 @@ void process_input() {
     }
     int strength_sum = 0;
     int signal = 1;
+
+    int pixel = 0;
+    std::string image;
+  
+
     int cycle = 1;
     for (std::string line; std::getline(aocInput, line);)
     {
@@ -27,6 +33,17 @@ void process_input() {
                 strength_sum += signal * cycle;
                 std::cout << signal << " " << cycle << '\n';
                 std::cout << "Total signal = " << strength_sum << '\n';
+
+            }
+            if (std::abs(pixel - signal) <= 1)
+                image += "#";
+            else
+                image += '.';
+            
+            ++pixel;
+            if (pixel == CRT_END_LINE) {
+                image += "\n";
+                pixel = 0;
             }
             ++cycle;
         }
@@ -36,8 +53,8 @@ void process_input() {
         }
     }
     std::cout << "Part 1 " << strength_sum << '\n';
+    std::cout << image;
 }
-
 int main()
 {
     process_input();
